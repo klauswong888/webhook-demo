@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { z } from "zod";
 import sendToWebhook from "@/app/utils/webhook";
+
+const schema = z.object({
+  name: z.string().max(20, "Name must be at most 20 characters").optional(),
+  message: z.string().min(1, "Message is required"),
+});
+
 function getLocalUser() {
   if (typeof window === "undefined") return { uid: null, username: null };
   return {
@@ -21,15 +28,27 @@ export default function BoardModal({ open, onClose, onSubmit }: { open: boolean;
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [localUser, setLocalUserState] = useState(getLocalUser());
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setLocalUserState(getLocalUser());
+    setError(null);
   }, [open]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     let uid = localUser.uid;
     let username = localUser.username;
+    // zod 
+    const result = schema.safeParse({
+      name: !uid ? name : undefined,
+      message,
+    });
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      return;
+    }
     if (!uid || !username) {
       uid = crypto.randomUUID();
       username = name;
@@ -69,6 +88,7 @@ export default function BoardModal({ open, onClose, onSubmit }: { open: boolean;
               placeholder="Your Name"
               value={name}
               onChange={e => setName(e.target.value)}
+              maxLength={20}
               required
             />
           )}
@@ -79,6 +99,7 @@ export default function BoardModal({ open, onClose, onSubmit }: { open: boolean;
             onChange={e => setMessage(e.target.value)}
             required
           />
+          {error && <div className="text-red-500 text-sm">{error}</div>}
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded"
