@@ -1,4 +1,11 @@
-async function sendToWebhook(payload: any) {
+export interface WebhookPayload {
+  uid: string;
+  username: string;
+  message: string;
+  createdAt: string;
+}
+
+async function sendToWebhook(payload: WebhookPayload) {
   const webhookUrl = process.env.NEXT_PUBLIC_WEBHOOK_URL || ""; 
   if (!webhookUrl) return;
 
@@ -11,5 +18,4 @@ async function sendToWebhook(payload: any) {
   } catch (error) {
     console.error("Webhook send failed", error);
   }
-}
-export default sendToWebhook;
+}export default sendToWebhook;

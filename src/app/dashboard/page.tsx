@@ -3,10 +3,18 @@ import { useState, useEffect } from "react";
 import BoardCard from "@/components/BoardCard";
 import BoardModal from "@/components/BoardModal";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
+
+export interface Message {
+  id: string;
+  uid: string;
+  username: string;
+  message: string;
+  createdAt?: Timestamp;
+}
 
 export default function DashboardPage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
 
@@ -16,13 +24,13 @@ export default function DashboardPage() {
     }
   }, [modalOpen]);
 
-  // 实时监听 Firestore
+  // realtime update
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
     const unsub = onSnapshot(q, (snapshot) => {
       setMessages(
         snapshot.docs.map((doc) => ({
-          ...doc.data(),
+          ...(doc.data() as Omit<Message, 'id'>),
           id: doc.id,
         }))
       );

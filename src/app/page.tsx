@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">
       <div className="flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-transparent mb-6">
-          Klaus's LiveBoard
+          Klaus&apos;s LiveBoard
         </h1>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
           A Real-time Message Board
